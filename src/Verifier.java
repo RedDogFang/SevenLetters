@@ -5,14 +5,13 @@ import java.io.IOException;
 
 public class Verifier{
 
-    public Verifier(String filename, String comboStr){
-        char[] combo = comboStr.toCharArray();
+    public void verify(Solution sol){
+        char[] combo = sol.winningCombo.toCharArray();
         BufferedReader in = null;
 
         try {
-            in = new BufferedReader(new FileReader(filename));
+            in = new BufferedReader(new FileReader(sol.filename));
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -82,6 +81,6 @@ public class Verifier{
             System.out.println("IOException ");
         }
 
-        System.out.println(filename + " "+ comboStr+ " "+wordCount);
+        System.out.println("Verifier spelled "+ wordCount +"words using " +sol.winningCombo);
     }
 }

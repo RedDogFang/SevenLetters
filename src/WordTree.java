@@ -103,6 +103,5 @@ public class WordTree{
 		int totalCount = 0;
 		int wordCnt = 0;			// how many words end here
 		Node[] moreNodes = null; 	// 26 nodes for more letters, created when needed
-		int filledinCount = 0;
 	}
 }

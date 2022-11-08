@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Date;
 
 /*
@@ -24,12 +23,7 @@ public class SevenLetters implements ISevenLetters{
 	
 	// tracks best solution
 	private int mBestComboWordCnt = 0;
-	private int[] mBestComboArray = new int[mAlphabetSize];
-	
-	// tracks words in current combo and total combos
-	private int mComboWordCnt = 0;
-	private int mComboCount = 0;
-	
+		
 	private int[] histogram = new int[mAlphabetSize];
 	private int[] reorder = new int[mAlphabetSize];
 	private int[] neworder = new int[mAlphabetSize];
@@ -73,48 +67,36 @@ public class SevenLetters implements ISevenLetters{
 	String previousFile = "";
 	
 	// starting point for real work
-	public String doTheWork(String filename, int numberOfLetters) {
+	public String doTheWork(Solution sol) {
 		// track time to read file and setup tree
 		mStartTime = System.currentTimeMillis();
-		mLetterCnt = numberOfLetters;
+		mLetterCnt = sol.numberOfLetters;
 		
 		// create base of tree
 		WordTree wordTree = new WordTree(mLetterCnt, mAlphabetSize);
-		mLetterCnt = numberOfLetters;
 		
 		// read file and fill in tree
-		readWordFileAndBuildTree(wordTree, filename);
+		readWordFileAndBuildTree(wordTree, sol.filename, sol);
 		
-		
-		if (mExtraPrints)
-			myOutput("file loaded and converted: "+myTime());
+		sol.fileLoadTime = (System.currentTimeMillis()-mStartTime)/1000;
+		// if (mExtraPrints)
+		// 	myOutput("file loaded and converted: "+myTime());
 		
 		// find letters that spell the most words
 		
-		if (mExtraPrints)
-			myOutput("\n---------- "+ mLetterCnt + " Letters -------------");
+		// if (mExtraPrints)
+		// 	myOutput("\n---------- "+ mLetterCnt + " Letters -------------");
 
 		mBestComboWordCnt = 0;
-		mComboCount = 0;
-		// use an array instead of a bitmap
-		int[] comboArray = new int[mLetterCnt];
-
 
 		GenerateCombos[] gcs = {
-//		brian		new GenerateCombos(wordTree, this, mLetterCnt, new int[] {0}, new int[] {26}),
-
 				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {0}, new int[] {1}),
 				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {1}, new int[] {2}),
 				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {2}, new int[] {3}),
-				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {3}, new int[] {26}),
-				
-//				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {0,1,2,3,4,5,6}, new int[] {0,7,19,20,21,22,23}),
-//				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {0,7,19,20,21,22,23}, new int[] {2,3,4,5,6,7,8}),
-//				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {2}, new int[] {3}),
-//				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {3}, new int[] {26}),
+				new GenerateCombos(wordTree, this, mLetterCnt, new int[] {3}, new int[] {26}),				
 		};
 		
-		joy = 4; //brian
+		joy = 4;
 		
 		for (int i=0; i<joy; i++) {
 			Thread t = new Thread(gcs[i]);
@@ -131,8 +113,10 @@ public class SevenLetters implements ISevenLetters{
 				best = i;
 			}
 		}
+		sol.winningCombo = printLetters(gcs[best].mBestComboArray);
+		sol.numberOfWordsSpelled = gcs[best].mBestComboWordCnt;
 
-		myOutput("First letter ("+mLetterCnt+" letters) "+gcs[best].mBestComboWordCnt+": "+printLetters(gcs[best].mBestComboArray)+"  "+myTime());
+		// myOutput("First letter ("+mLetterCnt+" letters) "+gcs[best].mBestComboWordCnt+": "+printLetters(gcs[best].mBestComboArray)+"  "+myTime());
 
 		return printLetters(gcs[best].mBestComboArray);
 
@@ -196,10 +180,10 @@ public class SevenLetters implements ISevenLetters{
 	// encode as bitmap in an int
 	// add to tree structure (modified b-tree)
 	// each node is a letter
-	private void readWordFileAndBuildTree(WordTree wordTree, String filename){
+	private void readWordFileAndBuildTree(WordTree wordTree, String filename, Solution sol){
 
-		if (!previousFile.equals(filename))
-			myOutput("\n-----------Processing "+filename+"------------");
+		// if (!previousFile.equals(filename))
+		// 	myOutput("\n-----------Processing "+filename+"------------");
 		
 		previousFile = filename;
 		
@@ -238,34 +222,6 @@ public class SevenLetters implements ISevenLetters{
 			}
 		}
 
-		
-//		for (byte b : mFileArray) {
-//			if ((b >= 'a') && (b <= 'z')) {
-//				wordBitmap |= 1 << (neworder[b-'a']);
-//			}
-//			else if (b == 0xa || b==' ') {
-//				// end of word
-//				// ignore long words or no word (i.e. multiple blank lines or multiple spaces
-//				if ((wordBitmap>0) && (countBits(wordBitmap)<=mLetterCnt)) {
-//					int index = 0;
-//					while (wordBitmap > 0) {
-//						if ((wordBitmap & 1) == 1) {
-//							histogram[index]++;
-//						}
-//						index++;
-//						wordBitmap >>= 1;
-//					}
-//				}
-//				// reset mask for next word
-//				wordBitmap = 0;
-//			}
-//			else if ((b >= 'A') && (b <= 'Z')) {
-//				wordBitmap |= 1 << (neworder[b-'A']);
-//			}
-//			// ignore all non letter characters
-//		}
-
-		
 		for (int j=0; j<reorder.length; j++) {
 			int max = -1;
 			int index = -1;
@@ -284,7 +240,7 @@ public class SevenLetters implements ISevenLetters{
 			if ((b >= 'a') && (b <= 'z')) {
 				wordBitmap |= 1 << (neworder[b-'a']);
 			}
-			else if (b==9 || b == 0xa || b==' ') {
+			else if (b<=' ') {
 				// end of word
 				// ignore long words or no word (i.e. multiple blank lines or multiple spaces
 				if ((wordBitmap>0) && (countBits(wordBitmap)<=mLetterCnt)) {
@@ -306,10 +262,12 @@ public class SevenLetters implements ISevenLetters{
 			originalWordCount++;
 		}
 
-		if (mExtraPrints) {
-			myOutput("file length = "+mFileArray.length);
-			myOutput("word count = "+originalWordCount);
-		}
+		sol.sizeOfFile = mFileArray.length;
+		sol.wordsInFile = originalWordCount;
+		// if (mExtraPrints) {
+		// 	myOutput("file length = "+mFileArray.length);
+		// 	myOutput("word count = "+originalWordCount);
+		// }
 	}
 	
 }

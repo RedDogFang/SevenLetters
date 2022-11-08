@@ -4,7 +4,6 @@ public interface ISevenLetters {
 		public void description();
 		
 		// starting point for real work
-		public String doTheWork(String filename, int numberOfLetters);
+		public String doTheWork(Solution sol);
 		public void done();
-		public void guardedJoy();
 }
