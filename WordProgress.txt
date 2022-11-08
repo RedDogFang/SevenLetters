@@ -1,0 +1,23 @@
+file loaded and converted: 1
+85: abcdefg  1
+86: abcdefh  1
+90: abcdefi  1
+141: abcdefl  1
+167: abcdefr  1
+205: abcdegr  1
+224: abcdeir  1
+241: abcdelr  1
+266: abcdels  1
+318: abcders  1
+322: abcelst  1
+407: abcerst  1
+411: abdelst  1
+484: abderst  1
+517: abelrst  1
+528: acderst  1
+543: aceprst  1
+608: adeirst  2
+621: aeinrst  2
+622: aelprst  2
+done: 9
+word compares 13223095600
