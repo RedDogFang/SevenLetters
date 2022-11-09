@@ -76,9 +76,9 @@ public class SevenLetters implements ISevenLetters{
 		WordTree wordTree = new WordTree(mLetterCnt, mAlphabetSize);
 		
 		// read file and fill in tree
-		readWordFileAndBuildTree(wordTree, sol.filename, sol);
+		readWordFileAndBuildTree(wordTree, sol);
 		
-		sol.fileLoadTime = (System.currentTimeMillis()-mStartTime)/1000;
+		sol.fileLoadTime = (System.currentTimeMillis()-mStartTime)/1000.0;
 		// if (mExtraPrints)
 		// 	myOutput("file loaded and converted: "+myTime());
 		
@@ -180,22 +180,17 @@ public class SevenLetters implements ISevenLetters{
 	// encode as bitmap in an int
 	// add to tree structure (modified b-tree)
 	// each node is a letter
-	private void readWordFileAndBuildTree(WordTree wordTree, String filename, Solution sol){
+	private void readWordFileAndBuildTree(WordTree wordTree, Solution sol){
 
-		// if (!previousFile.equals(filename))
-		// 	myOutput("\n-----------Processing "+filename+"------------");
-		
-		previousFile = filename;
-		
 		// count the words
 		int originalWordCount = 0;;
 
-		Path file = Paths.get(filename);
+		Path file = Paths.get(sol.filename);
 
 		try {
 			mFileArray = Files.readAllBytes(file);
 		} catch (IOException e) {
-			myOutput("Unable to open file "+filename);
+			myOutput("Unable to open file "+sol.filename);
 			System.exit(0);
 		}
 		
@@ -243,9 +238,12 @@ public class SevenLetters implements ISevenLetters{
 			else if (b<=' ') {
 				// end of word
 				// ignore long words or no word (i.e. multiple blank lines or multiple spaces
-				if ((wordBitmap>0) && (countBits(wordBitmap)<=mLetterCnt)) {
-					wordTree.addWordToTree(wordBitmap);
-					originalWordCount++;
+				if (wordBitmap>0){
+					sol.wordsInFile++;
+					if (countBits(wordBitmap)<=mLetterCnt) {
+						wordTree.addWordToTree(wordBitmap);
+						originalWordCount++;
+					}
 				}
 				// reset mask for next word
 				wordBitmap = 0;
@@ -257,17 +255,15 @@ public class SevenLetters implements ISevenLetters{
 		}
 		
 		// add last word if no 0xd 0xa is at end
-		if ((wordBitmap>0) && (countBits(wordBitmap)<=mLetterCnt)) {
-			wordTree.addWordToTree(wordBitmap);
-			originalWordCount++;
+		if (wordBitmap>0){
+			sol.wordsInFile++;
+			if (countBits(wordBitmap)<=mLetterCnt) {
+				wordTree.addWordToTree(wordBitmap);
+				originalWordCount++;
+			}
 		}
 
 		sol.sizeOfFile = mFileArray.length;
-		sol.wordsInFile = originalWordCount;
-		// if (mExtraPrints) {
-		// 	myOutput("file length = "+mFileArray.length);
-		// 	myOutput("word count = "+originalWordCount);
-		// }
 	}
 	
 }

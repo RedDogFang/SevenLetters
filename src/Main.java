@@ -12,8 +12,11 @@ public class Main {
 		// this will check how many words a combo spells 
 		// it does not verify that the combo is the best
 		// Verifier verifier = new Verifier(); 
-		
-		for (int recordIndex=0;recordIndex<=3;recordIndex++){
+
+		// recordIndex is an index into the Record array below.
+		// it determines which test is run
+		// NOTE: change recordIndex in 'for' loop to select which test(s) to run
+		for (int recordIndex=3;recordIndex<=3;recordIndex++){
 			Solution sol = new Solution(records[recordIndex].filename,
 			                        	records[recordIndex].numberOfLetters);
 
@@ -23,6 +26,8 @@ public class Main {
 				sl.doTheWork(sol);
 			}
 			sol.fullTime = (double)(System.currentTimeMillis() - start)/1000/(double)iterations;
+
+			// use this to verify the matched words for a single combo
 			// Verifier.verify(sol);
 			printSummary(sol, recordIndex);
 		}
@@ -30,27 +35,26 @@ public class Main {
 	}
 
 	private static void printSummary(Solution sol, int recordIndex){
-		System.out.println(sol.filename+" "+sol.numberOfLetters +" letters, {"+sol.winningCombo+"} spelled "+sol.numberOfWordsSpelled+" taking "+sol.fullTime);
+		System.out.print(sol.filename+" "+sol.numberOfLetters +" letters, {"+sol.winningCombo+"} spelled "+sol.numberOfWordsSpelled+" taking "+sol.fullTime+" seconds (prev best "+records[recordIndex].duration+")");
+		
 		if (verifyCombo(sol.winningCombo, records[recordIndex].combo)){
 			if (sol.numberOfWordsSpelled == records[recordIndex].numberOfWordsSpelled){
-				System.out.println("winning combo and number of words spelled match expected");
 				if (sol.fullTime < records[recordIndex].duration){
-					System.out.println("A new record of "+sol.fullTime);
-				}
-				else {
-					System.out.println("A duration was "+sol.fullTime);
+					System.out.print("  A NEW RECORD!!!!");
 				}
 			}
 			else{
-				System.out.println("winning combo matches expected but expected number of words is "+records[recordIndex].numberOfWordsSpelled);
-				System.out.println("duration was "+sol.fullTime);
+				System.out.print("\n  combo is correct but word count should be "+records[recordIndex].numberOfWordsSpelled);
 			}
 		}
 		else{
-			System.out.println("combo does not match expected ("+records[recordIndex].combo);
-			System.out.println("duration was "+sol.fullTime);
+			System.out.print("\n  combo does not match expected ("+records[recordIndex].combo+") expected count is "+records[recordIndex].numberOfWordsSpelled);
 		}
-		
+
+		if (sol.fileLoadTime>0){
+			System.out.print("\n txt file size: "+sol.sizeOfFile+", number of words in file: "+sol.wordsInFile+", time to load and parse file: "+sol.fileLoadTime);
+		}
+		System.out.println("\n");
 	}
 
 	private static boolean verifyCombo(String combo1, String combo2){
@@ -66,10 +70,10 @@ public class Main {
 	}
 
 	static Record[] records =  { 
-/* 0 */		new Record("englishwords.txt",4,50,"esat",.026),
-/* 1 */		new Record("englishwords.txt",5,164,"esart",.0173),
-/* 2 */		new Record("englishwords.txt",6,345,"aeprst",0.072),
-/* 3 */		new Record("englishwords.txt",7,622,"aelprst",0.1578),
+/* 0 */		new Record("englishwords.txt",4,50,"esat",.0144),
+/* 1 */		new Record("englishwords.txt",5,164,"esart",.0127),
+/* 2 */		new Record("englishwords.txt",6,345,"aeprst",0.0382),
+/* 3 */		new Record("englishwords.txt",7,622,"aelprst",0.1537),
 /* 4 */		new Record("englishwords.txt",8,1217,"adeinrst",0.796),
 /* 5 */		new Record("englishwords.txt",9,2112,"adeginrst",2.908),
 /* 6 */		new Record("englishwords.txt",10,3428,"acdeinorst",9.139),
