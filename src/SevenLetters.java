@@ -10,7 +10,7 @@ import java.util.Date;
 /*
  * Finds the "7" letters that spells the most words
  * in an input text file
- * Speed is very important
+ * Speed is very important, that is where the learning really happens
  */
 
 public class SevenLetters implements ISevenLetters{
