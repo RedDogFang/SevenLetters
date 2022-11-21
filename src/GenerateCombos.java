@@ -25,7 +25,7 @@ public class GenerateCombos implements Runnable {
 		mWordTree = wordTree;
 		mStartLetter = startLetter;
 		mStopLetter = stopLetter;
-		rangeDepth = mStartLetter.length;		
+		rangeDepth = mStartLetter.length;	
 	}
 	
 	private synchronized void setGreatest(int newMax) {
@@ -42,7 +42,7 @@ public class GenerateCombos implements Runnable {
 		
 		msl.done();
 	}
-
+	
 	private void generateCombosAndCountWords(int numberOfBits, int currentPos, int[] comboArray) {
 		// this keeps adding bits and sliding them through all possible positions
 		while (currentPos < 26 - mLetterCnt + numberOfBits) {
@@ -51,7 +51,6 @@ public class GenerateCombos implements Runnable {
 				
 				if (numberOfBits == 1) {
 					if (mGlobalBestComboWordCnt > mWordTree.countFirstNodes(currentPos,26)) {
-//						System.out.println("bail "+mGlobalBestComboWordCnt);
 						return;
 					}
 				}
@@ -82,7 +81,7 @@ public class GenerateCombos implements Runnable {
 				mComboCount++;
 
 				mComboWordCnt = mWordTree.countWords(comboArray);
-				
+
 				// record new record if found
 				if (mComboWordCnt > mBestComboWordCnt) {
 
