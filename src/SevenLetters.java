@@ -15,7 +15,7 @@ public class SevenLetters implements ISevenLetters{
 	final static int mAlphabetSize = 26;
 	
 	// letters count
-	private int mLetterCnt = 7;
+	// private int mLetterCnt = 7;
     private final int mask13 = 0x1fff;
 	// tracks best solution
 	private int mBestComboWordCnt = 0;
@@ -68,13 +68,13 @@ public class SevenLetters implements ISevenLetters{
 	}
 	
 	// starting point for real work
-	public String doTheWork(Solution sol) {
+	public void doTheWork(Solution sol) {
 		// track time to read file and setup tree
 		mStartTime = System.currentTimeMillis();
-		mLetterCnt = sol.numberOfLetters;
+		int letterCnt = sol.numberOfLetters;
 		
 		// create base of tree
-		WordTree wordTree = new WordTree(mLetterCnt, mAlphabetSize, lowBitPos);
+		WordTree wordTree = new WordTree(letterCnt, mAlphabetSize, lowBitPos);
 		
 		// read file and fill in tree
 		readWordFileAndBuildTree(wordTree, sol);
@@ -84,10 +84,10 @@ public class SevenLetters implements ISevenLetters{
 		mBestComboWordCnt = 0;
 
 		GenerateCombos[] gcs = {
-			new GenerateCombos(wordTree, this, mLetterCnt, new int[] {0}, new int[] {1}),
-			new GenerateCombos(wordTree, this, mLetterCnt, new int[] {1}, new int[] {2}),
-			new GenerateCombos(wordTree, this, mLetterCnt, new int[] {2}, new int[] {3}),
-			new GenerateCombos(wordTree, this, mLetterCnt, new int[] {3}, new int[] {26}),				
+			new GenerateCombos(wordTree, this, letterCnt, new int[] {0}, new int[] {1}),
+			new GenerateCombos(wordTree, this, letterCnt, new int[] {1}, new int[] {2}),
+			new GenerateCombos(wordTree, this, letterCnt, new int[] {2}, new int[] {3}),
+			new GenerateCombos(wordTree, this, letterCnt, new int[] {3}, new int[] {26}),				
 		};
 		
 		joy = gcs.length;
@@ -108,10 +108,8 @@ public class SevenLetters implements ISevenLetters{
 				best = i;
 			}
 		}
-		sol.winningCombo = printLetters(gcs[best].mBestComboArray);
+		sol.winningCombo = printLetters(gcs[best].mBestComboArray,letterCnt);
 		sol.numberOfWordsSpelled = gcs[best].mBestComboWordCnt;
-
-		return printLetters(gcs[best].mBestComboArray);
 	}
 	
 	public synchronized void done() {
@@ -131,10 +129,10 @@ public class SevenLetters implements ISevenLetters{
 
 	// converts the bitmap into a string
 	// this is used to print the winning combo
-	public String printLetters(int[] array){
+	public String printLetters(int[] array, int letterCnt){
 		String s="";
 
-		for (int i=0; i<mLetterCnt; i++) {
+		for (int i=0; i<letterCnt; i++) {
 			s += (char)('a'+reorder[array[i]]);
 		}
 		return s;
@@ -159,11 +157,9 @@ public class SevenLetters implements ISevenLetters{
 	// each node is a letter
 	private void readWordFileAndBuildTree(WordTree wordTree, Solution sol){
 
-		// count the words
-		Path file = Paths.get(sol.filename);
-
+		int letterCnt = sol.numberOfLetters;
 		try {
-			mFileArray = Files.readAllBytes(file);
+			mFileArray = Files.readAllBytes(Paths.get(sol.filename));
 		} catch (IOException e) {
 			System.out.println("Unable to open file "+sol.filename);
 			System.exit(0);
@@ -215,7 +211,7 @@ public class SevenLetters implements ISevenLetters{
 				// ignore long words or no word (i.e. multiple blank lines or multiple spaces
 				if (wordBitmap>0){
 					sol.wordsInFile++;
-                    if ((bitCounts[wordBitmap&mask13]+bitCounts[wordBitmap>>13])<=mLetterCnt) {
+                    if ((bitCounts[wordBitmap&mask13]+bitCounts[wordBitmap>>13])<=letterCnt) {
                         wordTree.addWordToTree(wordBitmap);
 					}
 				}
@@ -231,12 +227,11 @@ public class SevenLetters implements ISevenLetters{
 		// add last word if no 0xd 0xa is at end
 		if (wordBitmap>0){
 			sol.wordsInFile++;
-            if ((bitCounts[wordBitmap&mask13]+bitCounts[wordBitmap>>13])<=mLetterCnt) {
+            if ((bitCounts[wordBitmap&mask13]+bitCounts[wordBitmap>>13])<=letterCnt) {
                 wordTree.addWordToTree(wordBitmap);
 			}
 		}
 
 		sol.sizeOfFile = mFileArray.length;
 	}
-	
 }

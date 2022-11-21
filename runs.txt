@@ -1,6 +1,6 @@
-englishwords.txt,4,50,esat,14
+englishwords.txt,4,50,esat,12
 englishwords.txt,5,164,esart,10
-englishwords.txt,6,345,aeprst,35
+englishwords.txt,6,345,aeprst,33
 englishwords.txt,7,622,aelprst,136
 englishwords.txt,8,1217,adeinrst,213
 englishwords.txt,9,2112,adeginrst,277

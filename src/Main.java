@@ -12,7 +12,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		int startRecord = 0;
-		int endRecord = 6;
+		int endRecord = 5;
 		String recordsRead = "runs.txt";
 		String recordsWrite = "runs.txt";
 		int iterations = 10;
@@ -32,13 +32,13 @@ public class Main {
 			Solution sol = new Solution(records.get(recordIndex).filename,
 			                        	records.get(recordIndex).numberOfLetters);
 
-			
 			long start = System.currentTimeMillis();
 			for (int i=0; i<iterations; i++){
 				sol.reset();
 				sl.doTheWork(sol);
 			}
 			sol.fullTime = (System.currentTimeMillis() - start)/iterations;
+			sol.iterations = iterations;
 
 			// use this to verify the matched words for a single combo
 			// Verifier.verify(sol);
@@ -52,7 +52,7 @@ public class Main {
 	}
 
 	private static boolean printSummary(Solution sol, Record record){
-		System.out.print(sol.filename+", "+sol.numberOfLetters +" letters, {"+sol.winningCombo+"} spelled "+sol.numberOfWordsSpelled+" words, "+sol.fullTime+" msec (prev best "+record.duration+" msec)");
+		System.out.print(sol.filename+", "+sol.numberOfLetters +" letters, {"+sol.winningCombo+"} spelled "+sol.numberOfWordsSpelled+" words, "+sol.fullTime+" msec (prev best "+record.duration+" msec), iterations = "+sol.iterations);
 		boolean newRecord = false;
 		if (verifyCombo(sol.winningCombo, record.combo)){
 			if (sol.numberOfWordsSpelled == record.numberOfWordsSpelled){
