@@ -5,8 +5,8 @@ public class Solution {
     int numberOfWordsSpelled;
     int wordsInFile;
     int sizeOfFile;
-    double fileLoadTime;
-    double fullTime;
+    long fileLoadTime;
+    long fullTime;
     
     public Solution(String filename, int numLetters){
         this.filename = filename;
@@ -15,10 +15,10 @@ public class Solution {
 
     public void reset(){
         winningCombo="";
-        numberOfWordsSpelled = -1;
-        wordsInFile = -1;
-        sizeOfFile = -1;
-        fileLoadTime = -1;
-        fullTime = -1;
+        numberOfWordsSpelled = 0;
+        wordsInFile = 0;
+        sizeOfFile = 0;
+        fileLoadTime = 0;
+        fullTime = 0;
     }
 }
