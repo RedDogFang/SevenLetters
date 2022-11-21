@@ -7,6 +7,7 @@ public class Solution {
     int sizeOfFile;
     long fileLoadTime;
     long fullTime;
+    int iterations;
     
     public Solution(String filename, int numLetters){
         this.filename = filename;
