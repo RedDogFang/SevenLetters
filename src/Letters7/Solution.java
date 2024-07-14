@@ -1,13 +1,15 @@
+package Letters7;
+
 public class Solution {
-    String filename;
-    int numberOfLetters;
-    String winningCombo;
-    int numberOfWordsSpelled;
-    int wordsInFile;
-    int sizeOfFile;
-    long fileLoadTime;
-    long fullTime;
-    int iterations;
+    public String filename;
+    public int numberOfLetters;
+    public String winningCombo;
+    public int numberOfWordsSpelled;
+    public int wordsInFile;
+    public int sizeOfFile;
+    public long fileLoadTime;
+    public long fullTime;
+    public int iterations;
     
     public Solution(String filename, int numLetters){
         this.filename = filename;

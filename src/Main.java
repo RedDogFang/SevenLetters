@@ -7,15 +7,62 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Random;
+
+import Letters7.BitCounts;
+import Letters7.HighBitOffsets;
+import Letters7.LowBitOffsets;
+import Letters7.SevenLetters;
+import Letters7.Solution;
 
 public class Main {
 	public static void main(String[] args) {
-
+		// int mm = 1 << -1;
+		// System.out.println("="+String.format("%x",mm)+"=");
+		// System.exit(mm);
+		// BitCounts.dumpCounts();
+		// HighBitOffsets.dumpHigh();
+		// LowBitOffsets.dumpLow();
+		// System.out.println();
+		// System.out.println();
+		// Random rnd = new Random();
+		// for (int i=1;i<0x4000000; i++){
+		// 	int cnt = BitCounts.getBitCount(i);
+		// 	int tmp = i;
+		// 	for (int j=0; j<cnt; j++){
+		// 		int bitOffset;
+				
+		// 		if (rnd.nextBoolean()){
+		// 			bitOffset = LowBitOffsets.getLowBitPos(tmp);
+		// 		}
+		// 		else{
+		// 			bitOffset = HighBitOffsets.getHighBitPos(tmp);
+		// 		}
+		// 		tmp &= ~(1<<bitOffset);
+		// 	}
+		// 	if (tmp != 0){
+		// 		System.out.println(""+i+" "+tmp);
+		// 	}
+		// 	if ((i%2000) ==0){
+		// 		System.out.println(i);
+		// 	}
+		// }
+			// int low = LowBitOffsets.getLowBitPos(i);
+			// int high = HighBitOffsets.getHighBitPos(i);
+			// System.out.print(String.format("%x low=%d, high=%d",i,low,high));
+			// if (low != high){
+			// 	System.out.println("   unequal");
+			// }
+			// else{
+			// 	System.out.println("     equal");
+			// }
+		// }
+		// System.exit(0);
 		int startRecord = 0;
-		int endRecord = 5;
+		int endRecord = 0;
 		String recordsRead = "runs.txt";
 		String recordsWrite = "runs.txt";
-		int iterations = 10;
+		int iterations = 5;
 		// createTestFile();
 		ArrayList<Record> records = loadRuns(recordsRead);
 		SevenLetters sl = new SevenLetters();
@@ -27,23 +74,37 @@ public class Main {
 		// recordIndex is an index into the Record array below.
 		// it determines which test is run
 		// NOTE: change recordIndex in 'for' loop to select which test(s) to run
-		for (int recordIndex=startRecord; recordIndex<=endRecord; recordIndex++){
+		for (int recordIndex=0; recordIndex<records.size(); recordIndex++){
 
 			Solution sol = new Solution(records.get(recordIndex).filename,
 			                        	records.get(recordIndex).numberOfLetters);
 
-			long start = System.currentTimeMillis();
+			long start = 0;
+			long fastestRun = Long.MAX_VALUE;
 			for (int i=0; i<iterations; i++){
 				sol.reset();
+				System.gc();
+				start = System.currentTimeMillis();
 				sl.doTheWork(sol);
+				long duration = System.currentTimeMillis() - start;
+	
+				if (duration < fastestRun){
+					fastestRun = duration;
+				}
 			}
-			sol.fullTime = (System.currentTimeMillis() - start)/iterations;
+			sol.fullTime = fastestRun;
 			sol.iterations = iterations;
 
 			// use this to verify the matched words for a single combo
 			// Verifier.verify(sol);
 			if (printSummary(sol, records.get(recordIndex))){
 				records.get(recordIndex).duration = sol.fullTime;
+
+				// save first time runs
+				if (records.get(recordIndex).numberOfWordsSpelled == -1){
+					records.get(recordIndex).numberOfWordsSpelled = sol.numberOfWordsSpelled;
+					records.get(recordIndex).combo = sol.winningCombo;
+				}
 			}
 		}
 
@@ -65,12 +126,16 @@ public class Main {
 				System.out.print("\n  combo is correct but word count should be "+record.numberOfWordsSpelled);
 			}
 		}
+		else if (record.numberOfWordsSpelled==-1){
+			System.out.print("  SAVING FIRST TIME RUN");
+			newRecord = true;
+		}
 		else{
 			System.out.print("\n  combo does not match expected ("+record.combo+"), expected count is "+record.numberOfWordsSpelled);
 		}
 
 		if (sol.fileLoadTime>0){
-			System.out.print("\n ("+sol.sizeOfFile+" filesize, "+sol.wordsInFile+" words, "+sol.fileLoadTime+" msec load and parse");
+			System.out.print("\n ("+sol.sizeOfFile+" filesize, "+sol.wordsInFile+" words, "+sol.fileLoadTime+" msec load and parse)");
 		}
 		System.out.println("\n");
 
