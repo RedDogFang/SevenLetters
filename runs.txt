@@ -1,15 +1,1 @@
-englishwords.txt,7,1,ab,2000
-englishwords.txt,6,1,ab,2000
-englishwords.txt,8,1,ab,2000
-englishwords.txt,9,1,ab,2000
-englishwords.txt,10,1,ab,2000
-bible.txt,7,1,ab,2000
-bible.txt,6,1,ab,2000
-bible.txt,8,1,ab,2000
-bible.txt,9,1,ab,2000
-bible.txt,10,1,ab,2000
-Shakespeare.txt,7,1,ab,2000
-Shakespeare.txt,6,1,ab,2000
-Shakespeare.txt,8,1,ab,2000
-Shakespeare.txt,9,1,ab,2000
-Shakespeare.txt,10,1,ab,2000
+filename=englishwords.txt,numberOfLetters=7,bestCombo=aelprst,numberOfWordsSpelled=622,totalTime_msec=146,loadFileAndParseTime_msec=10,iterations=5,numberOfThreads=7,numberOfCombos=657800,wordsInFile=58110,fileSize=600804

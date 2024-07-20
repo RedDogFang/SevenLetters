@@ -1,0 +1,182 @@
+allow only changing/providing info for one of the rotate, shoot, intake components
+remove complexities around motor control
+remove special stop case
+add counter to periodic runs to help commands
+add commands to control rotate, shoot, intake independentantly
+fix variable names
+cleanup shooterinfo
+consider splitting up shooter subsystem and adding an controller
+add an shooterinfo option to have shooter subsystem set the target rotate pos to current pos
+adjust the left or right rotate gear offset
+revisit initializeShoot
+
+
+englishwords.txt,4,50,esat,3
+englishwords.txt,5,164,esart,6
+englishwords.txt,6,345,aeprst,22
+englishwords.txt,7,622,aelprst,100
+englishwords.txt,8,1217,adeinrst,213
+englishwords.txt,9,2112,adeginrst,1668
+englishwords.txt,10,3428,acdeinorst,5108
+englishwords.txt,11,5498,acdeilnorst,13035
+englishwords.txt,12,8483,acdeilnoprst,29026
+
+
+englishwords.txt, 4 letters, {aest} spelled 50 words, 5 msec (prev best 3 msec), 5 iterations
+ (600804 filesize, 58110 words, 2 msec load and parse, 14950 combo count, 7 thread count)
+englishwords.txt, 5 letters, {aerst} spelled 164 words, 11 msec (prev best 6 msec), 5 iterations
+ (600804 filesize, 58110 words, 3 msec load and parse, 65780 combo count, 7 thread count)
+
+englishwords.txt, 6 letters, {aeprst} spelled 345 words, 29 msec (prev best 22 msec), 5 iterations
+ (600804 filesize, 58110 words, 3 msec load and parse, 230230 combo count, 7 thread count)
+
+englishwords.txt, 7 letters, {aelprst} spelled 622 words, 145 msec (prev best 100 msec), 5 iterations (600804 filesize, 58110 words, 10 msec load and parse, 657800 combo count, 7 thread count)
+
+englishwords.txt, 8 letters, {adeinrst} spelled 1217 words, 620 msec (prev best 213 msec), 5 iterations
+ (600804 filesize, 58110 words, 15 msec load and parse, 1562275 combo count, 7 thread count)
+
+englishwords.txt, 9 letters, {adeginrst} spelled 2112 words, 2292 msec (prev best 1668 msec), 5 iterations
+ (600804 filesize, 58110 words, 13 msec load and parse, 3124550 combo count, 7 thread count)
+
+englishwords.txt, 10 letters, {acdeinorst} spelled 3428 words, 7210 msec (prev best 5108 msec), 5 iterations
+
+englishwords.txt, 11 letters, {acdeilnorst} spelled 5498 words, 18982 msec (prev best 13035 msec), 5 
+iterations
+ (600804 filesize, 58110 words, 19 msec load and parse, 7726160 combo count, 7 thread count)
+
+englishwords.txt, 12 letters, {acdeilnoprst} spelled 8483 words, 38234 msec (prev best 29026 msec), 5 iterations
+ (600804 filesize, 58110 words, 21 msec load and parse, 9657700 combo count, 7 thread count)
+
+
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.commands;
+
+import frc.robot.subsystems.RotateSubsystem;
+
+import java.util.ArrayList;
+
+import edu.wpi.first.wpilibj2.command.Command;
+
+/** An example command that uses an example subsystem. */
+public class MinPowerCommand extends Command {
+  private final RotateSubsystem rotate;
+
+  enum State {
+    START, COAST, MOVEFORWARD, MOVEBACK, DONE, MOVETONEXTPOINT
+  }
+  State state;
+  int index;
+  DataPoint dataPoint;
+  ArrayList<DataPoint> dataPoints = new ArrayList<>();
+  State prevState;
+  boolean firstTime;
+  long endTime;
+  boolean moveForward;
+  int pointsDone;
+  double maxPos = .21;
+  double pointDelta = .015;
+  double numberOfPoints = 0;
+  boolean done;
+  double nextPointPos;
+  double shuffleForward;
+  double shuffleBack;
+  double shuffleSpeedInc = .01;
+  boolean notDoneAlready;
+
+
+  public MinPowerCommand(RotateSubsystem rotate, boolean moveForward) {
+    this.rotate = rotate;
+    this.moveForward = moveForward;
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    rotate.resetSafe();
+    dataPoints.clear();
+    state = State.START;
+    prevState = State.DONE; // any non START state
+    firstTime = true;
+    numberOfPoints = 1;
+    done = false;
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    firstTime = prevState.equals(state);
+
+    switch (state){
+      case START:
+        dataPoint = new DataPoint();
+        dataPoints.add(dataPoint);
+        dataPoint.startPos = rotate.getLeftRotateEncoder();
+        dataPoint.startVel = rotate.getLeftRotateEncoderVel();
+        rotate.setRotationSpeed(0, 0);
+        state = State.COAST;
+        break;
+      case COAST:
+        if(firstTime){
+          endTime = System.currentTimeMillis()+500; // half second
+        }
+        else if(System.currentTimeMillis() > endTime){
+          notDoneAlready = false;
+          dataPoint.coastPos = rotate.getLeftRotateEncoder();
+          dataPoint.coastVel = rotate.getLeftRotateEncoderVel();
+          if(moveForward){
+            state = State.MOVEFORWARD;
+          }
+          else{
+            state = State.MOVEBACK;
+          }
+        }
+        break;
+      case MOVEFORWARD:
+        if (firstTime){
+          nextPointPos = dataPoint.startPos + numberOfPoints*pointDelta;
+          shuffleForward = nextPointPos + pointDelta;
+          shuffleBack = nextPointPos - pointDelta;
+          if (shuffleForward > maxPos || shuffleBack<0){
+            done = true;
+          }
+        }
+        
+
+
+        break;
+      case MOVEBACK:
+        break;
+      case DONE:
+        break;
+      case MOVETONEXTPOINT:
+        break;
+    }
+  }
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {}
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    return done;
+  }
+}
+
+class DataPoint{
+  double startPos;
+  double startVel;
+  double coastPos;
+  double coastVel;
+  double minPowerForward;
+  double minPowerBack;
+
+  public DataPoint(){
+
+  }
+}

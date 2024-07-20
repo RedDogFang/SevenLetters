@@ -1,74 +1,75 @@
 package Letters7;
 
-import java.util.Arrays;
-
+// this class generates all combos and counts the
+// number of words it can spell
 public class GenerateCombos implements Runnable {
 
-	// dynamically changing the alphabet size is not
-	// supported so it is a constant at the top of 
-	// every file that needs it
-	final static int kAlphabetSize = 26;
-	private WordTree mWordTree;
-	private ISevenLetters msl;
-	private int mStartLetter;
-	private int mStopLetter;
-	private int mComboCount = 0;
-	private int mLetterCnt = 7;
-	public static int mBestComboWordCnt = -1;
-	private int[] comboArray;
-	public static int[] mBestComboArray = new int[26];
-	private static int counter = 0;
-	private static Object obj = new Object();
-	int id;
+	private WordTree wordTree;
+	private int letterCnt;
+	private int stopLetter;
 	
-	public GenerateCombos(WordTree wordTree, ISevenLetters sl, int letterCnt, int startLetter, int stopLetter, int id) {
-		counter = 0;
-		mStartLetter = startLetter;
+	// current combo
+	private int countOfCombos;
+	private int[] comboArray;
+	// combo with highest word count (found so far)
+	public static int bestComboWordCnt = -1;
+	public static int[] bestComboArray;
+	
+	private static int syncCounter = 0;
+	private int id; // id is a unique identifier of this thread
+	
+	public GenerateCombos(WordTree wordTree, int letterCnt, int startLetter, int stopLetter, int id) {
+		this.wordTree = wordTree;
+		this.letterCnt = letterCnt;
+		this.stopLetter = stopLetter;
+		this.id = id;
+		bestComboWordCnt = -1;
 		comboArray = new int[letterCnt];
+		bestComboArray = new int[letterCnt];
+
+		// initial combo array
 		for(int i=0; i<letterCnt; i++){
 			comboArray[i] = startLetter+i;
 		}
-		mStopLetter = stopLetter;
-		mLetterCnt = letterCnt;
+		syncCounter = 0;
+	}
 
-		msl = sl;
-		mWordTree = wordTree;
-		this.id = id;
-
+	// allow setting externally to make it easier to do it on the fly
+	public void setStopLetter(int a){
+		stopLetter = a;
 	}
 
 	public static synchronized int increment(int adder){
-		counter+=adder;
-		return counter;
+		syncCounter+=adder;
+		return syncCounter;
 	}
 	
-	public synchronized void setGreatest(int newMax,int[] comboArray) {
-		mBestComboWordCnt = newMax;
-		System.arraycopy(comboArray, 0, mBestComboArray, 0, comboArray.length);
+	// thread safe way to save best combo
+	private synchronized void setGreatest(int newMax,int[] comboArray) {
+		// check again in case two threads tried to do it simultaneously
+		if (newMax > bestComboWordCnt){
+			bestComboWordCnt = newMax;
+			System.arraycopy(comboArray, 0, bestComboArray, 0, comboArray.length);
+		}
 	}
 	
-	public int getCombos() {
-		return mComboCount;
+	// helpful for students to know if they are doing things correctly
+	public int getNumberOfCombos() {
+		return countOfCombos;
 	}
-	int comboCnt = 0;
-	boolean allDone;
-	// int ccc;
+
+	// implement multiple threads to work on finding words simultaneously
 	public void run() {
-		// mGlobalBestComboWordCnt = -1;
-		// System.out.println("run: start "+Arrays.toString(comboArray)+", stop "+(char)('a'+mStopLetter));
-		allDone = false;
-		// ccc = 0;
 		generateCombosAndCountWords(comboArray);
-		// System.out.println("done id "+id);
-		// System.out.println("done: start "+(char)('a'+mStartLetter)+", stop "+(char)('a'+mStopLetter)+" combo "+Arrays.toString(comboArray)+", "+id);
-		msl.done(id,comboCnt,0);//ccc);
-		
+		// signal main thread that we are done
 		increment(1);
 	}
 	
+	// advance last letter to z then advance second to last (if possible)
+	// and reset all following letters then repeat until the 0th
+	// letter equals the stop letter
 	private boolean advanceCombo(int[] comboArray, int stopLetter){
-		
-		int maxLetter = kAlphabetSize - 1;
+		int maxLetter = SevenLetters.kAlphabetSize - 1;
 		int index = comboArray.length - 1;
 
 		while (index >= 0 && comboArray[index]==maxLetter){
@@ -77,25 +78,31 @@ public class GenerateCombos implements Runnable {
 		}
 		if (index>=0){
 			comboArray[index]++;
-			if (comboArray[0]== mStopLetter){
+			if (comboArray[0]== stopLetter){
 				return false;
 			}
 			index++;
-			for (; index<mLetterCnt; index++){
+			for (; index<letterCnt; index++){
 				comboArray[index] = comboArray[index-1]+1;
 			}
 			return true;
 		}
-
 		return false;
 	}
 
+	// a combo is an array of letterCnt ints
+	// each element holds the index of the letter
+	// a=0, b=1, c=2,...,z=25 so aelprst is
+	// {0,4,11,15,22,23,24}
 	private void generateCombosAndCountWords(int[] comboArray) {
-		while (advanceCombo(comboArray, mStopLetter)){
-			int cnt = mWordTree.getComboArrayCnt(comboArray);
-			if (cnt>mBestComboWordCnt){
+		do{
+			int cnt = wordTree.getComboArrayCnt(comboArray);
+			countOfCombos++;
+			// check here then also with the lock
+			// this will fail most of the time
+			if (cnt>bestComboWordCnt){
 				setGreatest(cnt, comboArray);
 			}
-		}
+		}while (advanceCombo(comboArray, stopLetter));
 	}
 }

@@ -1,0 +1,17 @@
+englishwords.txt,7,622,aelprst,157
+englishwords.txt,6,345,aelprs,3400
+englishwords.txt,8,1217,adeinrst,627
+englishwords.txt,9,2112,adeginrst,2357
+englishwords.txt,10,3428,acdeinorst,7211
+englishwords.txt,11,1,acdeilnorst,19307
+bible.txt,7,1,ab,2000
+bible.txt,6,1,ab,2000
+bible.txt,8,1,ab,2000
+bible.txt,9,1,ab,2000
+bible.txt,10,1,ab,2000
+Shakespeare.txt,7,1,ab,2000
+Shakespeare.txt,6,1,ab,2000
+Shakespeare.txt,8,1,ab,2000
+Shakespeare.txt,9,1,ab,2000
+Shakespeare.txt,10,1,ab,2000
+

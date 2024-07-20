@@ -10,18 +10,27 @@ public class Solution {
     public long fileLoadTime;
     public long fullTime;
     public int iterations;
+    public int comboCount;
+    public int threadCount;
     
-    public Solution(String filename, int numLetters){
-        this.filename = filename;
-        this.numberOfLetters = numLetters;
+    public Solution(Record record){
+        filename = record.filename;
+        iterations = record.iterations;
+        threadCount = record.numberOfThreads;
+        numberOfLetters = record.numberOfLetters;
     }
 
-    public void reset(){
-        winningCombo="";
-        numberOfWordsSpelled = 0;
-        wordsInFile = 0;
-        sizeOfFile = 0;
-        fileLoadTime = 0;
-        fullTime = 0;
+    public String toString(){
+        return "filename="+filename+
+        ",numberOfLetters="+numberOfLetters+
+        ",bestCombo="+winningCombo+
+        ",numberOfWordsSpelled="+numberOfWordsSpelled+
+        ",totalTime_msec="+fullTime+
+        ",loadFileAndParseTime_msec="+fileLoadTime+
+        ",iterations="+iterations+
+        ",numberOfThreads="+threadCount+
+        ",numberOfCombos="+comboCount+
+        ",wordsInFile="+wordsInFile+
+        ",fileSize="+sizeOfFile;
     }
 }
